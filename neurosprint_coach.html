@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroSprint — Coach Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d1b2a; --navy-mid:#1a2d42; --navy-light:#243447;
+  --gold:#f0a500; --gold-light:#fdf3dc; --gold-mid:#fac75a;
+  --lav:#9b9dc8; --lav-lite:#eeeef8;
+  --cream:#f8f5ef; --white:#fff;
+  --border:#e2dff5; --border-dark:#c8c5e0;
+  --txt:#1a1a2e; --txt-mid:#4a4a6a; --txt-lite:#9090b0;
+  --success:#2ec4b6; --warn:#f0a500; --danger:#e24b4a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--txt);min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+.sidebar{background:var(--navy);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-logo{padding:22px 20px 16px;border-bottom:1px solid rgba(155,157,200,.12);}
+.sb-orb{width:34px;height:34px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);margin-bottom:10px;}
+.sb-name{font-family:'DM Serif Display',serif;font-size:18px;color:var(--white);}
+.sb-tag{font-size:9px;color:var(--lav);letter-spacing:.14em;text-transform:uppercase;margin-top:2px;}
+.sb-section{padding:16px 16px 8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lav);}
+.sb-refresh{margin:8px 12px;padding:9px 14px;border-radius:10px;background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.25);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+.sb-refresh:hover{background:rgba(240,165,0,.22);}
+.sb-refresh-icon{font-size:14px;transition:transform .4s;}
+.sb-refresh.spinning .sb-refresh-icon{animation:spin .7s linear;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.client-list{flex:1;padding:8px 10px;}
+.client-item{padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .18s;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.client-item:hover{background:rgba(155,157,200,.1);}
+.client-item.active{background:rgba(240,165,0,.13);border:1px solid rgba(240,165,0,.2);}
+.ci-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-mid);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold);flex-shrink:0;border:1.5px solid rgba(240,165,0,.3);}
+.ci-info{flex:1;min-width:0;}
+.ci-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ci-id{font-size:10px;color:var(--lav);margin-top:1px;letter-spacing:.04em;}
+.ci-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-active{background:var(--success);}
+.dot-idle{background:rgba(155,157,200,.4);}
+
+.sb-stats{padding:14px 16px;border-top:1px solid rgba(155,157,200,.12);display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sb-stat{background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;}
+.ss-val{font-size:20px;font-weight:600;color:var(--gold);font-family:'DM Serif Display',serif;}
+.ss-lbl{font-size:9px;color:var(--lav);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+
+/* ── MAIN ── */
+.main{overflow-y:auto;padding:28px 32px;min-height:100vh;}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:16px;}
+.es-glyph{font-size:48px;opacity:.3;}
+.es-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--navy);}
+.es-sub{font-size:13px;color:var(--txt-lite);max-width:360px;line-height:1.6;}
+
+/* CLIENT VIEW */
+.client-view{display:none;}
+.client-view.active{display:block;animation:rise .3s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.cv-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap;}
+.cv-avatar-block{display:flex;align-items:center;gap:14px;}
+.cv-avatar{width:52px;height:52px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:var(--gold);border:2px solid rgba(240,165,0,.3);}
+.cv-name{font-family:'DM Serif Display',serif;font-size:26px;color:var(--navy);}
+.cv-id{font-size:11px;color:var(--txt-lite);letter-spacing:.07em;margin-top:3px;}
+.cv-meta{display:flex;gap:8px;flex-wrap:wrap;}
+.meta-pill{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.mp-active{background:#e1f5ee;color:#085041;}
+.mp-week{background:var(--lav-lite);color:#3C3489;}
+
+/* WEEK TABS */
+.cv-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;}
+.cv-tab{padding:10px 20px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-lite);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.cv-tab:hover{color:var(--txt-mid);}
+.cv-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+.cv-week{display:none;}
+.cv-week.active{display:block;}
+
+/* PROGRESS STRIP */
+.prog-strip{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 20px;margin-bottom:18px;display:flex;align-items:center;gap:16px;}
+.prog-lbl{font-size:10px;font-weight:600;color:var(--txt-lite);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.prog-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--success));border-radius:3px;}
+.prog-pct{font-size:12px;font-weight:600;color:var(--gold);min-width:32px;text-align:right;}
+.prog-saved{font-size:10px;color:var(--txt-lite);margin-left:8px;}
+
+/* STATE TABLE READONLY */
+.st-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.card-hdr{background:var(--navy);padding:11px 18px;display:flex;align-items:center;gap:8px;}
+.card-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.card-title{font-size:12px;font-weight:600;color:var(--white);letter-spacing:.03em;}
+.card-sub{font-size:10px;color:var(--lav);margin-left:4px;}
+.ro-table{width:100%;border-collapse:collapse;}
+.ro-table th{background:var(--navy-mid);color:var(--lav);font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;text-align:left;}
+.ro-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:top;}
+.ro-table tr:last-child td{border-bottom:none;}
+.ro-table tr:nth-child(even) td{background:#fafafe;}
+.day-cell{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-mid);background:#f7f6fc;border-right:1px solid var(--border);width:85px;}
+.time-cell{color:var(--txt-mid);border-right:1px solid var(--border);width:70px;font-size:11px;}
+.empty-cell{color:var(--txt-lite);font-style:italic;}
+
+/* STEP READONLY */
+.step-ro{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+.step-ro-hdr{background:var(--navy);padding:11px 16px;display:flex;align-items:center;gap:10px;}
+.step-ro-badge{width:24px;height:24px;border-radius:50%;background:rgba(240,165,0,.15);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;}
+.step-ro-name{font-size:12px;font-weight:600;color:var(--white);}
+.step-ro-q{font-size:10px;color:var(--lav);margin-top:1px;line-height:1.3;}
+.step-ro-body{padding:14px 16px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-block .field-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-mid);margin-bottom:5px;}
+.field-val{background:#fafafe;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--txt);line-height:1.6;min-height:52px;white-space:pre-wrap;}
+.field-val.empty{color:var(--txt-lite);font-style:italic;}
+
+/* TRANSFORM GRID */
+.tf-grid-ro{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.tf-card-ro{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.tf-hdr-ro{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:9px;}
+.tf-num{width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tn1{background:#e8eaf6;color:#3949ab;} .tn2{background:#e8f5e9;color:#2e7d32;}
+.tn3{background:#fff3e0;color:#e65100;} .tn4{background:#fce4ec;color:#c62828;}
+.tn5{background:#f3e5f5;color:#6a1b9a;} .tn6{background:#e0f7fa;color:#00695c;}
+.tf-card-title-ro{font-size:12px;font-weight:600;color:var(--navy);}
+.tf-card-q-ro{font-size:10px;color:var(--txt-lite);margin-top:1px;line-height:1.3;}
+.tf-card-body-ro{padding:12px 14px;}
+
+/* NO DATA */
+.no-data{padding:20px;text-align:center;color:var(--txt-lite);font-size:12px;font-style:italic;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:relative;height:auto;}
+  .main{padding:20px 16px;}
+  .tf-grid-ro{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:540px){.tf-grid-ro{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-orb">N</div>
+      <div class="sb-name">NeuroSprint</div>
+      <div class="sb-tag">Coach Dashboard</div>
+    </div>
+
+    <div class="sb-section">Clients</div>
+    <button class="sb-refresh" onclick="loadAllClients()">
+      <span class="sb-refresh-icon">↻</span> Refresh clients
+    </button>
+    <div class="client-list" id="clientList">
+      <div style="padding:12px;font-size:12px;color:var(--lav);">Loading clients...</div>
+    </div>
+
+    <div class="sb-stats">
+      <div class="sb-stat">
+        <div class="ss-val" id="statTotal">0</div>
+        <div class="ss-lbl">Clients</div>
+      </div>
+      <div class="sb-stat">
+        <div class="ss-val" id="statActive">0</div>
+        <div class="ss-lbl">With data</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="es-glyph">🧠</div>
+      <div class="es-title">Coach Dashboard</div>
+      <div class="es-sub">Select a client from the sidebar to view their NeuroSprint tracker entries. Click refresh to load the latest data.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const STEPS=[
+  {n:1,name:'Actions',q:null,parts:[
+    {key:'did',lbl:'What did I do for my projects this week?'},
+    {key:'didnt',lbl:'What did I not do for my projects this week?'}
+  ]},
+  {n:2,name:'State Dynamics',q:'What influenced my state this week?',parts:[
+    {key:'pos',lbl:'Positive influences'},
+    {key:'neg',lbl:'Negative influences'}
+  ]},
+  {n:3,name:'Orbit Analysis',q:'How did the "orbits" show up in your behaviour? How did you navigate?',parts:[
+    {key:'orbit',lbl:null,full:true}
+  ]},
+  {n:4,name:'Course Adjustment',q:'What will I change next week?',parts:[
+    {key:'adj',lbl:null,full:true}
+  ]}
+];
+const TF=[
+  {n:1,cls:'tn1',title:'Changes',q:'What is the main change I notice?'},
+  {n:2,cls:'tn2',title:'Actions',q:'Which of my actions led to this?'},
+  {n:3,cls:'tn3',title:'Abilities',q:'Which of my abilities helped me?'},
+  {n:4,cls:'tn4',title:'Beliefs',q:'How have my beliefs about what is possible changed?'},
+  {n:5,cls:'tn5',title:'Self-Perception',q:'How have my beliefs about myself changed?'},
+  {n:6,cls:'tn6',title:'Opportunities',q:'What new opportunities are now available to me?'}
+];
+const WEEK_NAMES=['Awareness','Building','Deepening','Transformative'];
+
+let allClients={};
+let activeClientId=null;
+let activeClientWeek=1;
+
+async function loadAllClients(){
+  const btn=document.querySelector('.sb-refresh');
+  btn.classList.add('spinning');
+  try{
+    const keysResult=await window.storage.list('client:',true);
+    const keys=keysResult?.keys||[];
+    const profileKeys=keys.filter(k=>k.endsWith(':profile'));
+    allClients={};
+    for(const pk of profileKeys){
+      try{
+        const r=await window.storage.get(pk,true);
+        if(r){
+          const profile=JSON.parse(r.value);
+          allClients[profile.id]={profile,weeks:{}};
+        }
+      }catch(e){}
+    }
+    // load week data
+    const weekKeys=keys.filter(k=>/week\d$/.test(k));
+    for(const wk of weekKeys){
+      try{
+        const r=await window.storage.get(wk,true);
+        if(r){
+          const data=JSON.parse(r.value);
+          const cid=data.clientId;
+          if(allClients[cid]){
+            allClients[cid].weeks[data.week]=data;
+          }
+        }
+      }catch(e){}
+    }
+    renderSidebar();
+  }catch(e){
+    document.getElementById('clientList').innerHTML='<div style="padding:12px;font-size:12px;color:#e24b4a;">Could not load clients. Ensure you are using the shared version.</div>';
+  }
+  btn.classList.remove('spinning');
+}
+
+function renderSidebar(){
+  const list=document.getElementById('clientList');
+  const clients=Object.values(allClients);
+  document.getElementById('statTotal').textContent=clients.length;
+  document.getElementById('statActive').textContent=clients.filter(c=>Object.keys(c.weeks).length>0).length;
+  if(!clients.length){
+    list.innerHTML='<div style="padding:12px;font-size:12px;color:var(--lav);">No clients yet. Share the client journal link with your clients.</div>';
+    return;
+  }
+  list.innerHTML=clients.map(c=>{
+    const initials=c.profile.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const hasData=Object.keys(c.weeks).length>0;
+    const isActive=c.profile.id===activeClientId;
+    return `<div class="client-item${isActive?' active':''}" onclick="selectClient('${c.profile.id}')">
+      <div class="ci-avatar">${initials}</div>
+      <div class="ci-info">
+        <div class="ci-name">${c.profile.name}</div>
+        <div class="ci-id">${c.profile.id}</div>
+      </div>
+      <div class="ci-dot ${hasData?'dot-active':'dot-idle'}"></div>
+    </div>`;
+  }).join('');
+}
+
+function selectClient(id){
+  activeClientId=id;
+  activeClientWeek=1;
+  renderSidebar();
+  renderClientView();
+}
+
+function renderClientView(){
+  const c=allClients[activeClientId];
+  if(!c)return;
+  const initials=c.profile.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const weeksWithData=Object.keys(c.weeks).length;
+  const latestWeek=weeksWithData?Math.max(...Object.keys(c.weeks).map(Number)):0;
+
+  let html=`<div class="client-view active" id="clientView">
+    <div class="cv-header">
+      <div class="cv-avatar-block">
+        <div class="cv-avatar">${initials}</div>
+        <div>
+          <div class="cv-name">${c.profile.name}</div>
+          <div class="cv-id">ID: ${c.profile.id}</div>
+        </div>
+      </div>
+      <div class="cv-meta">
+        ${weeksWithData?`<span class="meta-pill mp-active">${weeksWithData} week${weeksWithData>1?'s':''} submitted</span>`:'<span class="meta-pill" style="background:#fdf6c3;color:#5a4800;">No entries yet</span>'}
+        ${latestWeek?`<span class="meta-pill mp-week">Latest: Week ${latestWeek}</span>`:''}
+      </div>
+    </div>
+    <div class="cv-tabs">
+      ${[1,2,3,4].map(w=>`<div class="cv-tab${w===activeClientWeek?' active':''}" onclick="switchCVWeek(${w})">${'Week '+w}</div>`).join('')}
+    </div>`;
+
+  [1,2,3,4].forEach(w=>{
+    html+=`<div class="cv-week${w===activeClientWeek?' active':''}" id="cvw${w}">`;
+    const wData=c.weeks[w];
+    if(!wData){
+      html+=`<div class="no-data">No entries for Week ${w} yet.</div>`;
+    } else {
+      const saved=wData.savedAt?new Date(wData.savedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      html+=`<div class="prog-strip">
+        <span class="prog-lbl">Week ${w} — ${WEEK_NAMES[w-1]}</span>
+        <div class="prog-track"><div class="prog-fill" style="width:${calcDataPct(wData)}%"></div></div>
+        <span class="prog-pct">${calcDataPct(wData)}% filled</span>
+        ${saved?`<span class="prog-saved">Last saved: ${saved}</span>`:''}
+      </div>`;
+
+      if(w<4){
+        // State tracker
+        html+=`<div class="st-card"><div class="card-hdr"><div class="card-dot"></div><span class="card-title">Daily State Tracker</span></div>
+          <table class="ro-table">
+            <thead><tr><th>Day</th><th>Time</th><th>State / energy</th><th>Comments</th></tr></thead>
+            <tbody>`;
+        DAYS.forEach(d=>{
+          const t=wData.fields?.[`w${w}_t_${d}`]||'';
+          const s=wData.fields?.[`w${w}_s_${d}`]||'';
+          const cm=wData.fields?.[`w${w}_c_${d}`]||'';
+          html+=`<tr>
+            <td class="day-cell">${d}</td>
+            <td class="time-cell">${t||'—'}</td>
+            <td class="${s?'':'empty-cell'}">${s||'Not filled'}</td>
+            <td class="${cm?'':'empty-cell'}">${cm||''}</td>
+          </tr>`;
+        });
+        html+=`</tbody></table></div>`;
+
+        // Steps
+        STEPS.forEach(step=>{
+          html+=`<div class="step-ro">
+            <div class="step-ro-hdr">
+              <div class="step-ro-badge">${step.n}</div>
+              <div><div class="step-ro-name">Step ${step.n} — ${step.name}</div>${step.q?`<div class="step-ro-q">${step.q}</div>`:''}</div>
+            </div>
+            <div class="step-ro-body">`;
+          if(step.parts.length===1||step.parts[0].full){
+            const v=wData.fields?.[`w${w}_r${step.n}_${step.parts[0].key}`]||'';
+            html+=`<div class="field-val${v?'':' empty'}">${v||'No entry yet'}</div>`;
+          } else {
+            html+=`<div class="two-col">`;
+            step.parts.forEach(p=>{
+              const v=wData.fields?.[`w${w}_r${step.n}_${p.key}`]||'';
+              html+=`<div class="field-block">${p.lbl?`<div class="field-lbl">${p.lbl}</div>`:''}<div class="field-val${v?'':' empty'}">${v||'No entry yet'}</div></div>`;
+            });
+            html+=`</div>`;
+          }
+          html+=`</div></div>`;
+        });
+      } else {
+        // Week 4 transform
+        html+=`<div class="tf-grid-ro">`;
+        TF.forEach(t=>{
+          const v=wData.fields?.[`w4_tf${t.n}`]||'';
+          html+=`<div class="tf-card-ro">
+            <div class="tf-hdr-ro">
+              <div class="tf-num ${t.cls}">${t.n}</div>
+              <div><div class="tf-card-title-ro">${t.title}</div><div class="tf-card-q-ro">${t.q}</div></div>
+            </div>
+            <div class="tf-card-body-ro"><div class="field-val${v?'':' empty'}">${v||'No entry yet'}</div></div>
+          </div>`;
+        });
+        html+=`</div>`;
+      }
+    }
+    html+=`</div>`;
+  });
+
+  html+=`</div>`;
+  document.getElementById('mainPanel').innerHTML=html;
+}
+
+function switchCVWeek(w){
+  activeClientWeek=w;
+  document.querySelectorAll('.cv-tab').forEach((t,i)=>t.classList.toggle('active',i+1===w));
+  document.querySelectorAll('.cv-week').forEach((s,i)=>s.classList.toggle('active',i+1===w));
+}
+
+function calcDataPct(wData){
+  if(!wData?.fields)return 0;
+  const vals=Object.values(wData.fields);
+  const filled=vals.filter(v=>v&&v.trim()).length;
+  return vals.length?Math.round(filled/vals.length*100):0;
+}
+
+// init
+loadAllClients();
+</script>
+</body>
+</html>
