@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroSprint — Center for Neuro-Innovation & Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0d1b2a;
+  --navy-mid: #1a2d42;
+  --gold: #f0a500;
+  --gold-light: #fdf3dc;
+  --lav: #9b9dc8;
+  --lav-lite: #eeeef8;
+  --cream: #f8f5ef;
+  --white: #ffffff;
+  --border: #e2dff5;
+  --txt: #1a1a2e;
+  --txt-mid: #4a4a6a;
+  --txt-lite: #9090b0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* background texture dots */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(155,157,200,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* gold line top */
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), #ffd166, var(--gold));
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  z-index: 1;
+  animation: rise 0.5s ease;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* LOGO */
+.logo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 44px;
+}
+.logo-orb {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px; color: var(--navy);
+  margin-bottom: 14px;
+  box-shadow: 0 0 0 8px rgba(240,165,0,0.1), 0 0 0 16px rgba(240,165,0,0.05);
+}
+.logo-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px; color: var(--white);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+.logo-centre {
+  font-size: 10px; color: var(--lav);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-top: 5px; text-align: center;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(155,157,200,0.18);
+  border-radius: 20px;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+.card-client::before { background: rgba(127,119,221,0.06); }
+.card-coach::before  { background: rgba(240,165,0,0.06); }
+.card:hover { transform: translateY(-3px); border-color: rgba(155,157,200,0.35); }
+.card:hover::before { opacity: 1; }
+.card-client:hover { border-color: rgba(127,119,221,0.5); box-shadow: 0 8px 32px rgba(127,119,221,0.15); }
+.card-coach:hover  { border-color: rgba(240,165,0,0.5);  box-shadow: 0 8px 32px rgba(240,165,0,0.15); }
+.card:active { transform: translateY(-1px); }
+
+.card-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+.icon-client { background: rgba(127,119,221,0.15); border: 1px solid rgba(127,119,221,0.25); }
+.icon-coach  { background: rgba(240,165,0,0.15);  border: 1px solid rgba(240,165,0,0.25); }
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--white);
+  margin-bottom: 6px; line-height: 1.3;
+}
+.card-desc {
+  font-size: 12px; color: var(--lav);
+  line-height: 1.6; margin-bottom: 18px;
+  flex: 1;
+}
+.card-btn {
+  display: inline-block;
+  padding: 9px 22px;
+  border-radius: 100px;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-client {
+  background: rgba(127,119,221,0.15);
+  color: #c8c9f8;
+  border: 1px solid rgba(127,119,221,0.3);
+}
+.card-client:hover .btn-client {
+  background: #7F77DD;
+  color: var(--white);
+  border-color: #7F77DD;
+}
+.btn-coach {
+  background: rgba(240,165,0,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(240,165,0,0.3);
+}
+.card-coach:hover .btn-coach {
+  background: var(--gold);
+  color: var(--navy);
+  border-color: var(--gold);
+}
+
+/* DIVIDER */
+.or-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 28px;
+}
+.or-line { flex: 1; height: 1px; background: rgba(155,157,200,0.15); }
+.or-text { font-size: 10px; color: var(--lav); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* FOOTER NOTE */
+.footer-note {
+  text-align: center;
+  font-size: 11px; color: rgba(155,157,200,0.5);
+  line-height: 1.7;
+}
+.footer-note span { color: rgba(155,157,200,0.7); }
+
+/* WEEK PILL */
+.week-pills {
+  display: flex; justify-content: center; gap: 6px;
+  margin-bottom: 32px; flex-wrap: wrap;
+}
+.wp {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid rgba(155,157,200,0.15);
+  color: rgba(155,157,200,0.5);
+}
+
+@media (max-width: 480px) {
+  .cards { grid-template-columns: 1fr; }
+  .logo-name { font-size: 24px; }
+  .card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<div class="wrapper">
+
+  <div class="logo-block">
+    <div class="logo-orb">N</div>
+    <div class="logo-name">NeuroSprint Tracker</div>
+    <div class="logo-centre">Center for Neuro-Innovation &amp; Performance</div>
+  </div>
+
+  <div class="week-pills">
+    <div class="wp">Week 1 — Awareness</div>
+    <div class="wp">Week 2 — Building</div>
+    <div class="wp">Week 3 — Deepening</div>
+    <div class="wp">Week 4 — Transform</div>
+  </div>
+
+  <div class="cards">
+    <a class="card card-client" href="neurosprint_client.html">
+      <div class="card-icon icon-client">📓</div>
+      <div class="card-title">My Tracker</div>
+      <div class="card-desc">Fill in your daily state log and weekly reflections across your 4-week sprint.</div>
+      <span class="card-btn btn-client">Open my journal</span>
+    </a>
+
+    <a class="card card-coach" href="neurosprint_coach.html">
+      <div class="card-icon icon-coach">📊</div>
+      <div class="card-title">Coach View</div>
+      <div class="card-desc">See all client entries, weekly progress and transformative reflections.</div>
+      <span class="card-btn btn-coach">Open dashboard</span>
+    </a>
+  </div>
+
+  <div class="or-divider">
+    <div class="or-line"></div>
+    <div class="or-text">4-week performance sprint</div>
+    <div class="or-line"></div>
+  </div>
+
+  <div class="footer-note">
+    <span>Clients</span> — use "My Tracker" every day to log your state and weekly reflections.<br>
+    <span>Coach</span> — use "Coach View" to monitor all client progress in one place.
+  </div>
+
+</div>
+
+</body>
+</html>
